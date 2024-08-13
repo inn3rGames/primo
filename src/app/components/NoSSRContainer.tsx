@@ -6,7 +6,7 @@ import GameContainer from "./GameContainer";
 // Create container without SSR
 const NoSSRContainer = () => {
   return (
-    <Stage>
+    <Stage options={{backgroundAlpha: 0}}>
       <GameContainer></GameContainer>
     </Stage>
   );

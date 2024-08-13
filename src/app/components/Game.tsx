@@ -8,6 +8,8 @@ const Game = (app: Application) => {
   const gameHeight = 600;
   const backgroundColor = 0xffff00;
   app.renderer.background.color = backgroundColor;
+  app.renderer.background.alpha = 0.90;
+  console.log(app.renderer.background.alpha);
 
   // Create main container
   const mainContainer = new Container();

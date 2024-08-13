@@ -13,4 +13,10 @@
   justify-content: center;
   align-items: center;
   background-color: #000000;
+  /* Copyright https: //www.vecteezy.com/members/pking4th */
+  background-image: url(./slots.jpg);
+  background-repeat: repeat;
+  background-position: center;
+  background-attachment: fixed;
+  background-size: 400px;
 }
