@@ -1,15 +1,14 @@
-import { Container, Sprite, Application, Texture, Assets } from "pixi.js";
+import { Container, Sprite, Application, Texture, Assets, Text } from "pixi.js";
 import scaleToFit from "../utils/scaleToFit";
 
 // Handle main game logic
-const Game = (app: Application) => {
+const Game = async (app: Application) => {
   //Default stage options
   const gameWidth = 800;
   const gameHeight = 600;
   const backgroundColor = 0xffff00;
   app.renderer.background.color = backgroundColor;
-  app.renderer.background.alpha = 0.90;
-  console.log(app.renderer.background.alpha);
+  app.renderer.background.alpha = 0.9;
 
   // Create main container
   const mainContainer = new Container();
@@ -27,6 +26,14 @@ const Game = (app: Application) => {
     mainContainer.addChild(sprite);
   }
 
+  const text1 = new Text();
+  text1.text = "1234567890";
+  text1.style.fontFamily = "Casino 3D Lines Marquee";
+  text1.style.fontSize = 100;
+  text1.y = 200;
+
+  mainContainer.addChild(text1);
+
   // Center main container
   mainContainer.x = app.screen.width / 2;
   mainContainer.y = app.screen.height / 2;
@@ -43,6 +50,8 @@ const Game = (app: Application) => {
     );
     app.renderer.resize(gameWidth * currentScale, gameHeight * currentScale);
     app.stage.scale.set(currentScale);
+
+    text1.updateText(false);
   });
 };
 
