@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 
 const NoSSRContainer = dynamic(() => import("./components/NoSSRContainer"));
 
+// Default Game Page
 export default function Home() {
   return (
     <div id="no-ssr-container">

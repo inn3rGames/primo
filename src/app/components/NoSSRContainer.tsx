@@ -3,9 +3,10 @@
 import { Stage } from "@pixi/react";
 import GameContainer from "./GameContainer";
 
+// Create container without SSR
 const NoSSRContainer = () => {
   return (
-    <Stage width={400} height={400} options={{ background: 0xffffff }}>
+    <Stage>
       <GameContainer></GameContainer>
     </Stage>
   );
