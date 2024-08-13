@@ -6,7 +6,7 @@ const GameWithNoSSR = dynamic(() => import("./components/Game"));
 
 export default function Home() {
   return (
-    <div>
+    <div id="game-container">
       <GameWithNoSSR></GameWithNoSSR>
     </div>
   );
