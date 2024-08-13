@@ -1,8 +1,13 @@
 // Formula to preserve the aspect ratio regardless of the viewport size
-const scaleToFit = (initialWidth: number, initialHeight: number): number => {
+const scaleToFit = (
+  currentWidth: number,
+  currentHeight: number,
+  initialWidth: number,
+  initialHeight: number
+): number => {
   const scale = Math.min(
-    window.innerWidth / initialWidth,
-    window.innerHeight / initialHeight
+    currentWidth / initialWidth,
+    currentHeight / initialHeight
   );
 
   return scale;

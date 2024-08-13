@@ -33,7 +33,12 @@ const Game = (app: Application) => {
 
   app.ticker.add(() => {
     // Handle resize
-    const currentScale = scaleToFit(gameWidth, gameHeight);
+    const currentScale = scaleToFit(
+      window.innerWidth,
+      window.innerHeight,
+      gameWidth,
+      gameHeight
+    );
     app.renderer.resize(gameWidth * currentScale, gameHeight * currentScale);
     app.stage.scale.set(currentScale);
   });
