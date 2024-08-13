@@ -1,10 +1,11 @@
 @font-face {
-  font-family: "Casino 3D Lines Marquee";
-  src: url("Casino3DLinesMarquee-Regular.eot");
-  src: url("Casino3DLinesMarquee-Regular.eot?#iefix") format("embedded-opentype"),
-    url("Casino3DLinesMarquee-Regular.woff2") format("woff2"),
-    url("Casino3DLinesMarquee-Regular.woff") format("woff"),
-    url("Casino3DLinesMarquee-Regular.ttf") format("truetype");
+  font-family: "Casino 3D Filled Marquee";
+  src: url("Casino3DFilledMarquee-Regular.eot");
+  src: url("Casino3DFilledMarquee-Regular.eot?#iefix")
+      format("embedded-opentype"),
+    url("Casino3DFilledMarquee-Regular.woff2") format("woff2"),
+    url("Casino3DFilledMarquee-Regular.woff") format("woff"),
+    url("Casino3DFilledMarquee-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -16,6 +17,22 @@
   box-sizing: border-box;
 }
 
+#blurred-background {
+  position: fixed;
+  inset: 0px;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000000;
+  /* Copyright https: //www.vecteezy.com/members/pking4th */
+  background-image: url(../assets/slots.jpg);
+  background-repeat: repeat;
+  background-position: center;
+  background-attachment: fixed;
+  background-size: 400px;
+  filter: blur(2px);
+  z-index: -1;
+}
+
 #no-ssr-container {
   position: fixed;
   inset: 0px;
@@ -24,11 +41,4 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #000000;
-  /* Copyright https: //www.vecteezy.com/members/pking4th */
-  background-image: url(../assets/slots.jpg);
-  background-repeat: repeat;
-  background-position: center;
-  background-attachment: fixed;
-  background-size: 400px;
 }
