@@ -9,6 +9,8 @@ import {
 import scaleToFit from "../utils/scaleToFit";
 import isPrime from "../utils/isPrime";
 import getRandomIntInclusive from "../utils/getRandomIntInclusive";
+import lerp from "../utils/lerp";
+import backOut from "../utils/backOut";
 
 // Handle main game logic
 const Game = async (app: Application) => {
@@ -91,8 +93,9 @@ const Game = async (app: Application) => {
         textObject.style = { ...lostStyle };
       }
       textObject.anchor.set(0.5, 0.5);
-      textObject.x = (i - 3) * spaceBetweenNumbers + gameWidth/2;
+      textObject.x = (i - 3) * spaceBetweenNumbers + gameWidth / 2;
       textObject.y = gameHeight / 2 - 8;
+      textObject.visible = false;
       numbersContainer.addChild(textObject);
 
       const numberSprite: NumberEntity = {
@@ -180,8 +183,78 @@ const Game = async (app: Application) => {
   let spin = false;
   let speed = 10;
   let steps = 30;
+  let numbersIndex = 0;
+
+  const tweens: any = [];
+  const tweenTo = (
+    object: any,
+    property: string,
+    target: number,
+    time: number,
+    easing: Function,
+    onchange: Function | null,
+    oncomplete: Function | null
+  ) => {
+    const tween = {
+      object,
+      property,
+      propertyBeginValue: object[property],
+      target,
+      easing,
+      time,
+      change: onchange,
+      complete: oncomplete,
+      start: Date.now(),
+    };
+    tweens.push(tween);
+    return tween;
+  };
+
+  const draw = () => {
+    // Clear scene
+    for (let i = 0; i < numberEntities.length; i++) {
+      numberEntities[i].textObject.visible = false;
+    }
+
+    // Extract the subset of numbers that are visible
+    let visibleNumbers: Array<NumberEntity> = [];
+    for (let i = numbersIndex; i < numbersIndex + 5; i++) {
+      if (numberEntities[i] !== undefined) {
+        numberEntities[i].textObject.visible = true;
+        visibleNumbers.push(numberEntities[i]);
+      } else {
+        numberEntities[i - numberEntities.length].textObject.visible = true;
+        visibleNumbers.push(numberEntities[i - numberEntities.length]);
+      }
+    }
+
+    // Position visible numbers
+    for (let i = 0; i < visibleNumbers.length; i++) {
+      /* visibleNumbers[i].textObject.x =
+        (i - 2) * spaceBetweenNumbers + gameWidth / 2; */
+
+      tweenTo(
+        visibleNumbers[i].textObject,
+        "x",
+        (i - 2) * spaceBetweenNumbers + gameWidth / 2,
+        1000,
+        backOut(0.5),
+        null,
+        null
+      );
+    }
+  };
+  draw();
 
   const startSpin = () => {
+    if (numbersIndex < numberEntities.length - 1) {
+      numbersIndex += 1;
+    } else {
+      numbersIndex = 0;
+    }
+
+    draw();
+
     if (spin == false) {
       spin = true;
       speed = 50;
@@ -195,34 +268,12 @@ const Game = async (app: Application) => {
 
   const endSpin = (numberValue: number) => {
     spin = false;
-
     if (isPrime(numberValue) === true) {
       title.text = "WON";
       title.style = { ...wonStyle };
     } else {
       title.text = "LOST";
       title.style = { ...lostStyle };
-    }
-
-    console.log(numberEntities[numberValue - 1].textObject.text);
-
-    let centerNumberIndex = 1;
-    let leftNumberIndex = 0;
-    for (let i = 0; i < numberEntities.length; i++) {
-      const numberSprite = numberEntities[i];
-
-      if (numberSprite.numberValue >= numberValue) {
-        numberSprite.textObject.x =
-          (centerNumberIndex - 1) * spaceBetweenNumbers + gameWidth / 2;
-
-        centerNumberIndex += 1;
-      } else if (Math.abs(numberValue - numberSprite.numberValue) <= 3) {
-        console.log(numberSprite.numberValue);
-        numberSprite.textObject.x =
-          (leftNumberIndex - 1) * spaceBetweenNumbers + gameWidth / 2;
-
-        leftNumberIndex -= 1;
-      }
     }
   };
 
@@ -245,35 +296,37 @@ const Game = async (app: Application) => {
   // Main game update loop
   app.ticker.add((delta) => {
     if (spin == true) {
-      for (let i = 0; i < numberEntities.length; i++) {
-        numberEntities[i].textObject.x -= delta * speed;
+    }
+  });
 
-        // Reset collision and position when number gets offscreen
-        if (
-          numberEntities[i].textObject.x <=
-          gameWidth / 2 - 3 * spaceBetweenNumbers
-        ) {
-          numberEntities[i].textObject.x =
-            17 * spaceBetweenNumbers + gameWidth / 2;
-          numberEntities[i].collision = false;
-        }
+  // Handle tweens
+  app.ticker.add((delta) => {
+    const now = Date.now();
+    const remove = [];
 
-        // Detect collision with chevrons
-        if (
-          numberEntities[i].textObject.x <= gameWidth / 2 &&
-          numberEntities[i].collision === false
-        ) {
-          numberEntities[i].collision = true;
-          steps -= 1;
-          if (steps <= 0) {
-            endSpin(numberEntities[i].numberValue);
-          }
-        }
+    for (let i = 0; i < tweens.length; i++) {
+      const tween = tweens[i];
+      const phase = Math.min(1, (now - tween.start) / tween.time);
+
+      tween.object[tween.property] = lerp(
+        tween.propertyBeginValue,
+        tween.target,
+        tween.easing(phase)
+      );
+
+      if (tween.change) {
+        tween.change(tween);
       }
 
-      speed = steps * 2;
-    } else {
-      return;
+      if (phase === 1) {
+        tween.object[tween.property] = tween.target;
+        if (tween.complete) tween.complete(tween);
+        remove.push(tween);
+      }
+    }
+
+    for (let i = 0; i < remove.length; i++) {
+      tweens.splice(tweens.indexOf(remove[i]), 1);
     }
   });
 };
