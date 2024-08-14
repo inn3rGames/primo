@@ -7,6 +7,8 @@ import {
   Graphics,
 } from "pixi.js";
 import scaleToFit from "../utils/scaleToFit";
+import isPrime from "../utils/isPrime";
+import getRandomIntInclusive from "../utils/getRandomIntInclusive";
 
 // Handle main game logic
 const Game = async (app: Application) => {
@@ -21,8 +23,8 @@ const Game = async (app: Application) => {
   const mainContainer = new Container();
   app.stage.addChild(mainContainer);
 
-  // Custom text style
-  const customStyle = {
+  // Custom text styles
+  const wonStyle = {
     fill: ["#FFD700", "#FFA500"],
     fontFamily: "Casino 3D Filled Marquee",
     fontSize: 100,
@@ -36,26 +38,73 @@ const Game = async (app: Application) => {
     dropShadowBlur: 3,
   };
 
+  const lostStyle = {
+    fill: ["#FFA07A", "#FF0000"],
+    fontFamily: "Casino 3D Filled Marquee",
+    fontSize: 100,
+    align: "center" as TextStyleAlign,
+    stroke: "#FFFFFF",
+    strokeThickness: 3,
+    lineJoin: "round" as TextStyleLineJoin,
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    dropShadowAlpha: 0.25,
+    dropShadowBlur: 3,
+  };
+
+  const spinningStyle = {
+    fill: ["#EE82EE", "#9932CC"],
+    fontFamily: "Casino 3D Filled Marquee",
+    fontSize: 100,
+    align: "center" as TextStyleAlign,
+    stroke: "#FFFFFF",
+    strokeThickness: 3,
+    lineJoin: "round" as TextStyleLineJoin,
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    dropShadowAlpha: 0.25,
+    dropShadowBlur: 3,
+  };
+
   // Create numbers container
   const numbersContainer = new Container();
   app.stage.addChild(numbersContainer);
 
-  // Hold all numbers
-  let numbers: Array<Text> = [];
+  // Hold all number entities
+  let numberEntities: Array<NumberEntity> = [];
 
+  interface NumberEntity {
+    textObject: Text;
+    collision: boolean;
+    numberValue: number;
+    initialPostion: number;
+  }
+
+  const spaceBetweenNumbers = 150;
   const createNumbers = (totalNumbers: number) => {
     for (let i = 1; i < totalNumbers + 1; i++) {
-      const number = new Text();
-      number.text = i.toString();
-      number.style = { ...customStyle };
-      number.anchor.set(0.5, 0.5);
-      number.x = (i - 1) * 150 + gameWidth / 2 - 0 * 150;
-      number.y = gameHeight / 2 - 8;
-      numbersContainer.addChild(number);
-      numbers.push(number);
+      const textObject = new Text();
+      textObject.text = i.toString();
+      if (isPrime(i) == true) {
+        textObject.style = { ...wonStyle };
+      } else {
+        textObject.style = { ...lostStyle };
+      }
+      textObject.anchor.set(0.5, 0.5);
+      textObject.x = (i - 3) * spaceBetweenNumbers + gameWidth/2;
+      textObject.y = gameHeight / 2 - 8;
+      numbersContainer.addChild(textObject);
+
+      const numberSprite: NumberEntity = {
+        textObject: textObject,
+        collision: false,
+        numberValue: i,
+        initialPostion: textObject.x,
+      };
+
+      numberEntities.push(numberSprite);
     }
   };
-
   createNumbers(20);
 
   // Center main container
@@ -63,12 +112,6 @@ const Game = async (app: Application) => {
   mainContainer.y = app.screen.height / 2;
   mainContainer.pivot.x = mainContainer.width / 2;
   mainContainer.pivot.y = mainContainer.height / 2;
-
-  // Center numbers container
-  //numbersContainer.x = app.screen.width / 2;
-  //numbersContainer.y = app.screen.height / 2;
-  //numbersContainer.pivot.x = numbersContainer.width / 2;
-  //numbersContainer.pivot.y = numbersContainer.height / 2;
 
   // Create UI container
   const uiContainer = new Container();
@@ -117,55 +160,74 @@ const Game = async (app: Application) => {
   uiContainer.addChild(chevronTop);
 
   // Create title text
-  const titleStyle = {
-    fill: ["#EE82EE", "#9932CC"],
-    fontFamily: "Casino 3D Filled Marquee",
-    fontSize: 100,
-    align: "center" as TextStyleAlign,
-    stroke: "#FFFFFF",
-    strokeThickness: 3,
-    lineJoin: "round" as TextStyleLineJoin,
-    dropShadow: true,
-    dropShadowColor: "#000000",
-    dropShadowAlpha: 0.25,
-    dropShadowBlur: 3,
-  };
-
   const title = new Text();
   title.text = "PRIMO";
-  title.style = { ...titleStyle };
+  title.style = { ...spinningStyle };
   title.anchor.set(0.5);
   title.y = -gameHeight / 2 + title.height;
   uiContainer.addChild(title);
 
   // Create play text
-  const playStyle = {
-    fill: ["#FFA07A", "#FF0000"],
-    fontFamily: "Casino 3D Filled Marquee",
-    fontSize: 100,
-    align: "center" as TextStyleAlign,
-    stroke: "#FFFFFF",
-    strokeThickness: 3,
-    lineJoin: "round" as TextStyleLineJoin,
-    dropShadow: true,
-    dropShadowColor: "#000000",
-    dropShadowAlpha: 0.25,
-    dropShadowBlur: 3,
-  };
-
   const play = new Text();
   play.text = "PLAY";
-  play.style = { ...playStyle };
+  play.style = { ...wonStyle };
   play.anchor.set(0.5);
   play.y = gameHeight / 2 - play.height;
   uiContainer.addChild(play);
-
-  let spin = false;
-  let speed = 50;
   play.eventMode = "static";
   play.cursor = "pointer";
+
+  let spin = false;
+  let speed = 10;
+  let steps = 30;
+
+  const startSpin = () => {
+    if (spin == false) {
+      spin = true;
+      speed = 50;
+      steps = 20 + getRandomIntInclusive(5, 15);
+      title.text = "SPINNING";
+      title.style = { ...spinningStyle };
+    } else {
+      return;
+    }
+  };
+
+  const endSpin = (numberValue: number) => {
+    spin = false;
+
+    if (isPrime(numberValue) === true) {
+      title.text = "WON";
+      title.style = { ...wonStyle };
+    } else {
+      title.text = "LOST";
+      title.style = { ...lostStyle };
+    }
+
+    console.log(numberEntities[numberValue - 1].textObject.text);
+
+    let centerNumberIndex = 1;
+    let leftNumberIndex = 0;
+    for (let i = 0; i < numberEntities.length; i++) {
+      const numberSprite = numberEntities[i];
+
+      if (numberSprite.numberValue >= numberValue) {
+        numberSprite.textObject.x =
+          (centerNumberIndex - 1) * spaceBetweenNumbers + gameWidth / 2;
+
+        centerNumberIndex += 1;
+      } else if (Math.abs(numberValue - numberSprite.numberValue) <= 3) {
+        console.log(numberSprite.numberValue);
+        numberSprite.textObject.x =
+          (leftNumberIndex - 1) * spaceBetweenNumbers + gameWidth / 2;
+
+        leftNumberIndex -= 1;
+      }
+    }
+  };
+
   play.addEventListener("pointerdown", () => {
-    spin = true;
+    startSpin();
   });
 
   // Handle resize
@@ -183,20 +245,33 @@ const Game = async (app: Application) => {
   // Main game update loop
   app.ticker.add((delta) => {
     if (spin == true) {
-      for (let i = 0; i < numbers.length; i++) {
-        numbers[i].x -= delta * speed;
+      for (let i = 0; i < numberEntities.length; i++) {
+        numberEntities[i].textObject.x -= delta * speed;
 
-        if (numbers[i].x <= gameWidth / 2 - 450) {
-          numbers[i].x = (18 - 1) * 150 + gameWidth / 2;
+        // Reset collision and position when number gets offscreen
+        if (
+          numberEntities[i].textObject.x <=
+          gameWidth / 2 - 3 * spaceBetweenNumbers
+        ) {
+          numberEntities[i].textObject.x =
+            17 * spaceBetweenNumbers + gameWidth / 2;
+          numberEntities[i].collision = false;
+        }
+
+        // Detect collision with chevrons
+        if (
+          numberEntities[i].textObject.x <= gameWidth / 2 &&
+          numberEntities[i].collision === false
+        ) {
+          numberEntities[i].collision = true;
+          steps -= 1;
+          if (steps <= 0) {
+            endSpin(numberEntities[i].numberValue);
+          }
         }
       }
 
-      speed -= 0.5 * delta;
-
-      if (speed <= 0) {
-        speed = 50;
-        spin = false;
-      }
+      speed = steps * 2;
     } else {
       return;
     }
