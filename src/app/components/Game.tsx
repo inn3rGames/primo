@@ -48,14 +48,15 @@ const Game = async (app: Application) => {
       const number = new Text();
       number.text = i.toString();
       number.style = { ...customStyle };
-      number.x = 0;
-      number.y = 0;
+      number.anchor.set(0.5, 0.5);
+      number.x = (i - 1) * 150 + gameWidth / 2 - 0 * 150;
+      number.y = gameHeight / 2 - 8;
       numbersContainer.addChild(number);
       numbers.push(number);
     }
   };
 
-  createNumbers(1);
+  createNumbers(20);
 
   // Center main container
   mainContainer.x = app.screen.width / 2;
@@ -64,10 +65,10 @@ const Game = async (app: Application) => {
   mainContainer.pivot.y = mainContainer.height / 2;
 
   // Center numbers container
-  numbersContainer.x = app.screen.width / 2;
-  numbersContainer.y = app.screen.height / 2;
-  numbersContainer.pivot.x = numbersContainer.width / 2;
-  numbersContainer.pivot.y = numbersContainer.height / 2;
+  //numbersContainer.x = app.screen.width / 2;
+  //numbersContainer.y = app.screen.height / 2;
+  //numbersContainer.pivot.x = numbersContainer.width / 2;
+  //numbersContainer.pivot.y = numbersContainer.height / 2;
 
   // Create UI container
   const uiContainer = new Container();
@@ -159,8 +160,13 @@ const Game = async (app: Application) => {
   play.y = gameHeight / 2 - play.height;
   uiContainer.addChild(play);
 
+  let spin = false;
+  let speed = 50;
   play.eventMode = "static";
   play.cursor = "pointer";
+  play.addEventListener("pointerdown", () => {
+    spin = true;
+  });
 
   // Handle resize
   app.ticker.add(() => {
@@ -176,10 +182,24 @@ const Game = async (app: Application) => {
 
   // Main game update loop
   app.ticker.add((delta) => {
-    /* numbersContainer.y += delta * 10;
-    if (numbersContainer.y >= numbersContainer.height + gameHeight * 2) {
-      numbersContainer.y = 0;
-    } */
+    if (spin == true) {
+      for (let i = 0; i < numbers.length; i++) {
+        numbers[i].x -= delta * speed;
+
+        if (numbers[i].x <= gameWidth / 2 - 450) {
+          numbers[i].x = (18 - 1) * 150 + gameWidth / 2;
+        }
+      }
+
+      speed -= 0.5 * delta;
+
+      if (speed <= 0) {
+        speed = 50;
+        spin = false;
+      }
+    } else {
+      return;
+    }
   });
 };
 
