@@ -37,7 +37,6 @@ const Game = async (app: Application) => {
     dropShadowAlpha: 0.25,
     dropShadowBlur: 3,
   };
-
   const lostStyle = {
     fill: ["#FFA07A", "#FF0000"],
     fontFamily: "Casino 3D Filled Marquee",
@@ -51,7 +50,6 @@ const Game = async (app: Application) => {
     dropShadowAlpha: 0.25,
     dropShadowBlur: 3,
   };
-
   const spinningStyle = {
     fill: ["#EE82EE", "#9932CC"],
     fontFamily: "Casino 3D Filled Marquee",
@@ -71,14 +69,13 @@ const Game = async (app: Application) => {
   app.stage.addChild(numbersContainer);
 
   // Hold all number entities
-  let numberEntities: Array<NumberEntity> = [];
-
   interface NumberEntity {
     textObject: Text;
     collision: boolean;
     numberValue: number;
     lastPostion: number;
   }
+  let numberEntities: Array<NumberEntity> = [];
 
   const spaceBetweenNumbers = 150;
   const createNumbers = (totalNumbers: number) => {
@@ -178,17 +175,17 @@ const Game = async (app: Application) => {
   play.cursor = "pointer";
 
   let spin = false;
-  let speed = 10;
-  let steps = 30;
+  let speed: number;
+  let steps: number;
 
   const startSpin = () => {
     if (spin == false) {
       spin = true;
-      speed = 50;
       steps = 20 + getRandomIntInclusive(5, 15);
       title.text = "SPINNING";
       title.style = { ...spinningStyle };
 
+      // Fix precision errors
       for (let i = 0; i < numberEntities.length; i++) {
         const numberSprite = numberEntities[i];
         numberSprite.textObject.x =
@@ -214,6 +211,7 @@ const Game = async (app: Application) => {
       title.style = { ...lostStyle };
     }
 
+    // Remember last positions
     for (let i = 0; i < numberEntities.length; i++) {
       const numberSprite = numberEntities[i];
       numberSprite.lastPostion = numberSprite.textObject.x;
@@ -239,6 +237,7 @@ const Game = async (app: Application) => {
   // Main game update loop
   app.ticker.add((delta) => {
     if (spin == true) {
+      speed = steps * 2;
       for (let i = 0; i < numberEntities.length; i++) {
         numberEntities[i].textObject.x -= delta * speed;
 
@@ -264,8 +263,6 @@ const Game = async (app: Application) => {
           }
         }
       }
-
-      speed = steps * 2;
     } else {
       return;
     }
