@@ -94,6 +94,27 @@ const Game = async (app: Application) => {
   square.endFill();
   uiContainer.addChild(square);
 
+  //Create chevron bottom
+  const chevronBottom = new Graphics();
+  chevronBottom.beginFill("#ADD8E6", 1);
+  chevronBottom.moveTo(-30, 80);
+  chevronBottom.lineTo(30, 80);
+  chevronBottom.lineTo(0, -30 + 80);
+  chevronBottom.lineTo(-30, 80);
+  chevronBottom.closePath();
+  chevronBottom.endFill();
+  uiContainer.addChild(chevronBottom);
+
+  //Create chevron top
+  const chevronTop = new Graphics();
+  chevronTop.beginFill("#ADD8E6", 1);
+  chevronTop.moveTo(-30, -80);
+  chevronTop.lineTo(30, -80);
+  chevronTop.lineTo(0, +30 - 80);
+  chevronTop.lineTo(-30, -80);
+  chevronTop.closePath();
+  chevronTop.endFill();
+  uiContainer.addChild(chevronTop);
 
   // Handle resize
   app.ticker.add(() => {
