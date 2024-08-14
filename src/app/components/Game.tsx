@@ -10,9 +10,12 @@ import scaleToFit from "../utils/scaleToFit";
 import isPrime from "../utils/isPrime";
 import getRandomIntInclusive from "../utils/getRandomIntInclusive";
 import arrayShuffle from "../utils/arrayShuffle";
+import JSConfetti from "js-confetti";
 
 // Handle main game logic
 const Game = async (app: Application) => {
+  const jsConfetti = new JSConfetti();
+
   // Default stage options
   const gameWidth = 800;
   const gameHeight = 600;
@@ -215,6 +218,9 @@ const Game = async (app: Application) => {
     if (isPrime(numberValue) === true) {
       title.text = "WON";
       title.style = { ...wonStyle };
+      jsConfetti.addConfetti({
+        emojis: ["🎰", "💰", "👑", "🏆", "🤩", "🪙"],
+      });
     } else {
       title.text = "LOST";
       title.style = { ...lostStyle };
