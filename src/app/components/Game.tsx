@@ -9,6 +9,7 @@ import {
 import scaleToFit from "../utils/scaleToFit";
 import isPrime from "../utils/isPrime";
 import getRandomIntInclusive from "../utils/getRandomIntInclusive";
+import arrayShuffle from "../utils/arrayShuffle";
 
 // Handle main game logic
 const Game = async (app: Application) => {
@@ -77,11 +78,19 @@ const Game = async (app: Application) => {
   }
   let numberEntities: Array<NumberEntity> = [];
 
+  // Generate number sprites
   const spaceBetweenNumbers = 150;
   const createNumbers = (totalNumbers: number) => {
+    // Enable random number order
+    let initialOrder = [];
+    for (let i = 1; i < 21; i++) {
+      initialOrder.push(i);
+    }
+    let shuffledArray = arrayShuffle(initialOrder);
+
     for (let i = 1; i < totalNumbers + 1; i++) {
       const textObject = new Text();
-      textObject.text = i.toString();
+      textObject.text = shuffledArray[i - 1].toString();
       if (isPrime(i) == true) {
         textObject.style = { ...wonStyle };
       } else {
