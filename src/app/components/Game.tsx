@@ -5,7 +5,9 @@ import {
   TextStyleLineJoin,
   TextStyleAlign,
   Graphics,
+  Point,
 } from "pixi.js";
+import { BulgePinchFilter } from "pixi-filters";
 import scaleToFit from "../utils/scaleToFit";
 import isPrime from "../utils/isPrime";
 import getRandomIntInclusive from "../utils/getRandomIntInclusive";
@@ -39,6 +41,7 @@ const Game = async (app: Application) => {
   // Create main container
   const mainContainer = new Container();
   app.stage.addChild(mainContainer);
+  const customFilter = new BulgePinchFilter({radius: 100, strength: 0.5});
 
   // Custom text styles
   const wonStyle = {
@@ -209,6 +212,7 @@ const Game = async (app: Application) => {
       steps = 20 + getRandomIntInclusive(5, 15);
       title.text = "SPINNING";
       title.style = { ...spinningStyle };
+      numbersContainer.filters = [customFilter];
 
       // Fix precision errors
       for (let i = 0; i < numberEntities.length; i++) {
@@ -227,12 +231,14 @@ const Game = async (app: Application) => {
 
   const endSpin = (numberValue: number) => {
     spin = false;
+    numbersContainer.filters = [];
 
     if (isPrime(numberValue) === true) {
       title.text = "WON";
       title.style = { ...wonStyle };
       jsConfetti.addConfetti({
         emojis: ["🎰", "💰", "👑", "🏆", "🤩", "🪙"],
+        confettiNumber: 20,
       });
       win.play();
     } else {
