@@ -11,10 +11,23 @@ import isPrime from "../utils/isPrime";
 import getRandomIntInclusive from "../utils/getRandomIntInclusive";
 import arrayShuffle from "../utils/arrayShuffle";
 import JSConfetti from "js-confetti";
+import { Howl, Howler } from "howler";
 
 // Handle main game logic
 const Game = async (app: Application) => {
+  // Load confetti
   const jsConfetti = new JSConfetti();
+
+  // Load sounds
+  let slot = new Howl({
+    src: ["./assets/slot.wav"],
+  });
+  let win = new Howl({
+    src: ["./assets/win.wav"],
+  });
+  let lose = new Howl({
+    src: ["./assets/lose.wav"],
+  });
 
   // Default stage options
   const gameWidth = 800;
@@ -94,7 +107,7 @@ const Game = async (app: Application) => {
     for (let i = 1; i < totalNumbers + 1; i++) {
       const textObject = new Text();
       textObject.text = shuffledArray[i - 1].toString();
-      if (isPrime(i) == true) {
+      if (isPrime(shuffledArray[i - 1]) == true) {
         textObject.style = { ...wonStyle };
       } else {
         textObject.style = { ...lostStyle };
@@ -107,7 +120,7 @@ const Game = async (app: Application) => {
       const numberSprite: NumberEntity = {
         textObject: textObject,
         collision: false,
-        numberValue: i,
+        numberValue: shuffledArray[i - 1],
         lastPostion: textObject.x,
       };
 
@@ -221,9 +234,11 @@ const Game = async (app: Application) => {
       jsConfetti.addConfetti({
         emojis: ["🎰", "💰", "👑", "🏆", "🤩", "🪙"],
       });
+      win.play();
     } else {
       title.text = "LOST";
       title.style = { ...lostStyle };
+      lose.play();
     }
 
     // Remember last positions
@@ -272,6 +287,7 @@ const Game = async (app: Application) => {
           numberEntities[i].collision === false
         ) {
           numberEntities[i].collision = true;
+          slot.play();
           steps -= 1;
           if (steps <= 0) {
             endSpin(numberEntities[i].numberValue);
