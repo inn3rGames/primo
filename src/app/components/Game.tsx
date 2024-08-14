@@ -49,8 +49,7 @@ const Game = async (app: Application) => {
       number.text = i.toString();
       number.style = { ...customStyle };
       number.x = 0;
-      number.y = -6;
-      console.log(number.height);
+      number.y = 0;
       numbersContainer.addChild(number);
       numbers.push(number);
     }
@@ -94,7 +93,7 @@ const Game = async (app: Application) => {
   square.endFill();
   uiContainer.addChild(square);
 
-  //Create chevron bottom
+  // Create chevron bottom
   const chevronBottom = new Graphics();
   chevronBottom.beginFill("#ADD8E6", 1);
   chevronBottom.moveTo(-30, 80);
@@ -105,7 +104,7 @@ const Game = async (app: Application) => {
   chevronBottom.endFill();
   uiContainer.addChild(chevronBottom);
 
-  //Create chevron top
+  // Create chevron top
   const chevronTop = new Graphics();
   chevronTop.beginFill("#ADD8E6", 1);
   chevronTop.moveTo(-30, -80);
@@ -115,6 +114,53 @@ const Game = async (app: Application) => {
   chevronTop.closePath();
   chevronTop.endFill();
   uiContainer.addChild(chevronTop);
+
+  // Create title text
+  const titleStyle = {
+    fill: ["#EE82EE", "#9932CC"],
+    fontFamily: "Casino 3D Filled Marquee",
+    fontSize: 100,
+    align: "center" as TextStyleAlign,
+    stroke: "#FFFFFF",
+    strokeThickness: 3,
+    lineJoin: "round" as TextStyleLineJoin,
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    dropShadowAlpha: 0.25,
+    dropShadowBlur: 3,
+  };
+
+  const title = new Text();
+  title.text = "PRIMO";
+  title.style = { ...titleStyle };
+  title.anchor.set(0.5);
+  title.y = -gameHeight / 2 + title.height;
+  uiContainer.addChild(title);
+
+  // Create play text
+  const playStyle = {
+    fill: ["#FFA07A", "#FF0000"],
+    fontFamily: "Casino 3D Filled Marquee",
+    fontSize: 100,
+    align: "center" as TextStyleAlign,
+    stroke: "#FFFFFF",
+    strokeThickness: 3,
+    lineJoin: "round" as TextStyleLineJoin,
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    dropShadowAlpha: 0.25,
+    dropShadowBlur: 3,
+  };
+
+  const play = new Text();
+  play.text = "PLAY";
+  play.style = { ...playStyle };
+  play.anchor.set(0.5);
+  play.y = gameHeight / 2 - play.height;
+  uiContainer.addChild(play);
+
+  play.eventMode = "static";
+  play.cursor = "pointer";
 
   // Handle resize
   app.ticker.add(() => {
