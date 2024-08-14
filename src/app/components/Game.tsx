@@ -10,7 +10,6 @@ import scaleToFit from "../utils/scaleToFit";
 import isPrime from "../utils/isPrime";
 import getRandomIntInclusive from "../utils/getRandomIntInclusive";
 import lerp from "../utils/lerp";
-import backOut from "../utils/backOut";
 
 // Handle main game logic
 const Game = async (app: Application) => {
@@ -191,7 +190,7 @@ const Game = async (app: Application) => {
     property: string,
     target: number,
     time: number,
-    easing: Function,
+    easing: Function | null,
     onchange: Function | null,
     oncomplete: Function | null
   ) => {
@@ -224,6 +223,8 @@ const Game = async (app: Application) => {
         visibleNumbers.push(numberEntities[i]);
       } else {
         numberEntities[i - numberEntities.length].textObject.visible = true;
+        numberEntities[i - numberEntities.length].textObject.x =
+          3 * spaceBetweenNumbers + gameWidth / 2;
         visibleNumbers.push(numberEntities[i - numberEntities.length]);
       }
     }
@@ -237,8 +238,8 @@ const Game = async (app: Application) => {
         visibleNumbers[i].textObject,
         "x",
         (i - 2) * spaceBetweenNumbers + gameWidth / 2,
-        1000,
-        backOut(0.5),
+        250,
+        null,
         null,
         null
       );
@@ -300,7 +301,7 @@ const Game = async (app: Application) => {
   });
 
   // Handle tweens
-  app.ticker.add((delta) => {
+  app.ticker.add(() => {
     const now = Date.now();
     const remove = [];
 
@@ -311,7 +312,7 @@ const Game = async (app: Application) => {
       tween.object[tween.property] = lerp(
         tween.propertyBeginValue,
         tween.target,
-        tween.easing(phase)
+        phase
       );
 
       if (tween.change) {
