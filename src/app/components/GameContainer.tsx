@@ -8,8 +8,10 @@ const GameContainer = () => {
 
   // Ensure access to the window object
   useEffect(() => {
-    app.stage.removeChildren();
-    Game(app);
+    document.fonts.ready.then(() => {
+      app.stage.removeChildren();
+      Game(app);
+    });
   }, [app]);
 
   return <></>;
