@@ -1,4 +1,10 @@
-import { Container, Application, Text, TextStyleLineJoin } from "pixi.js";
+import {
+  Container,
+  Application,
+  Text,
+  TextStyleLineJoin,
+  TextStyleAlign,
+} from "pixi.js";
 import scaleToFit from "../utils/scaleToFit";
 
 // Handle main game logic
@@ -19,6 +25,7 @@ const Game = async (app: Application) => {
     fill: ["#FFD700", "#FFA500"],
     fontFamily: "Casino 3D Filled Marquee",
     fontSize: 100,
+    align: "center" as TextStyleAlign,
     stroke: "#FFFF00",
     strokeThickness: 3,
     lineJoin: "round" as TextStyleLineJoin,
@@ -41,7 +48,7 @@ const Game = async (app: Application) => {
       number.text = i.toString();
       number.style = { ...customStyle };
       number.y = -105 * i + gameHeight;
-      number.pivot.x = number.width / 2;
+      number.anchor.set(0.5, 0.5);
       numbersContainer.addChild(number);
       numbers.push(number);
     }
@@ -58,7 +65,8 @@ const Game = async (app: Application) => {
   // Center numbers container
   numbersContainer.x = app.screen.width / 2;
   numbersContainer.y = app.screen.height / 2;
-  numbersContainer.pivot.x = numbersContainer.width / 2;
+  numbersContainer.pivot.x =
+    numbersContainer.width / 2 - (numbers[numbers.length - 1].width / 4);
   numbersContainer.pivot.y = numbersContainer.height / 2;
 
   // Handle resize
