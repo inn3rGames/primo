@@ -41,6 +41,7 @@ const Game = async (app: Application) => {
       number.text = i.toString();
       number.style = { ...customStyle };
       number.y = -105 * i + gameHeight;
+      number.pivot.x = number.width / 2;
       numbersContainer.addChild(number);
       numbers.push(number);
     }
